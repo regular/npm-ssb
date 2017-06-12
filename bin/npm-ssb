@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+// jshint esversion: 6
+const registry = require('../registry');
+const backend = require('../backend');
+
+registry(backend(), (err)=>{
+    if (err) throw err;
+});

@@ -1,0 +1,23 @@
+{
+  "name": "npm-ssb",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "npm-ssb": "bin/npm-ssb"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "body": "^5.1.0",
+    "request": "^2.79.0",
+    "routes": "^2.1.0"
+  },
+  "keywords": [],
+  "contributors": [
+    "Jan Bölsche <jan@lagomorph.de> (http://regular.codes)",
+    "Stephen Whitmore <sww@eight.net>"
+  ],
+  "license": "MIT"
+}
