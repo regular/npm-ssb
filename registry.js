@@ -5,7 +5,7 @@ var url = require('url')
 var body = require('body')
 var request = require('request')
 
-module.exports = function (driver, done) {
+module.exports = function (Driver, done) {
   var router = routes()
   router.addRoute('/:pkg', onPackage)
   router.addRoute('/-/user/org.couchdb.user\::user', onAddUser)
@@ -31,10 +31,10 @@ module.exports = function (driver, done) {
   function onPackage (req, res, match) {
     if (req.method === 'GET') {
       var pkg = match.params.pkg
-      if (driver.isPeerPackage(pkg)) {
+      if (Driver().isPeerPackage(pkg)) {
         console.log(pkg + ' is a peer network package')
         // use peer network
-        driver.fetchMetadata(pkg, function (err, meta) {
+        Driver().fetchMetadata(pkg, function (err, meta) {
           if (err) {
             res.statusCode = 404
           } else {
@@ -79,35 +79,31 @@ module.exports = function (driver, done) {
 
     var pending = 2
     var pkg = data.name
+    var driver = Driver()
     driver.writeMetadata(pkg, data, function (err) {
       console.log('wrote meta')
       if (--pending === 0) done(err)
     })
-    writeAttachments(pkg, attachments, function (err) {
+    writeAttachments(driver, pkg, attachments, function (err) {
       console.log('wrote tarball')
-      if (--pending === 0) done(err)
+      if (--pending === 0) driver.publishRelease(done)
     })
   }
 
-  function writeAttachments (pkg, attachments, done) {
+  function writeAttachments (driver, pkg, attachments, done) {
     var pending = Object.keys(attachments).length
 
     Object.keys(attachments).forEach(function (filename) {
       var data = new Buffer(attachments[filename].data, 'base64')
       driver.writeTarball(pkg, filename, data, function (err) {
-        if (--pending === 0) done()
+        if (--pending === 0) done(err)
       })
     })
   }
 
-  function fetchPackage (pkg, out, done) {
-    console.log('fetch pkg', pkg)
-    driver.fetchMetadata(pkg, done)
-  }
-
   function onAddUser (req, res, match) {
     body(req, function (err, data) {
-      driver.addUser({
+      Driver().addUser({
         name: data.name,
         email: data.email
       }, function (err) {
@@ -124,7 +120,7 @@ module.exports = function (driver, done) {
   function onTarball (req, res, match) {
     var tarball = match.params.tarball
     console.log('wants tarball:', tarball)
-    driver.fetchTarball(tarball, function (err, stream) {
+    Driver().fetchTarball(tarball, function (err, stream) {
       if (err) {
         res.statusCode = 404
         res.end()

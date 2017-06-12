@@ -8,3 +8,8 @@ bin/npm-ssb&
 cd to/whereever/your/package/is
 npm publish --registry=http://localhost:9000
 ```
+
+To stop it again:
+```
+pgrep npm-ssb | xargs kill
+```

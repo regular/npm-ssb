@@ -1,7 +1,7 @@
 {
   "name": "npm-ssb",
   "version": "1.0.0",
-  "description": "",
+  "description": "An npm registry replacement for the Scuttleverse",
   "main": "index.js",
   "bin": {
     "npm-ssb": "bin/npm-ssb"
@@ -14,10 +14,15 @@
     "request": "^2.79.0",
     "routes": "^2.1.0"
   },
-  "keywords": [],
+  "keywords": ['sssb', 'npm', 'c31m', 'p2p', 'package manager', 'scuttlebutt'],
   "contributors": [
     "Jan Bölsche <jan@lagomorph.de> (http://regular.codes)",
     "Stephen Whitmore <sww@eight.net>"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "ssb://%imnigwPJY1MbBuvaSGj2CZXjsOqq3LCBCCkxLusLNHQ=.sha256"
+  }
 }

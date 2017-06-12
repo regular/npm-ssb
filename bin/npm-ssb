@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // jshint esversion: 6
+process.title = "npm-ssb";
 const registry = require('../registry');
 const backend = require('../backend');
 
-registry(backend(), (err)=>{
+registry(backend, (err)=>{
     if (err) throw err;
 });
