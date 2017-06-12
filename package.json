@@ -14,7 +14,7 @@
     "request": "^2.79.0",
     "routes": "^2.1.0"
   },
-  "keywords": ['sssb', 'npm', 'c31m', 'p2p', 'package manager', 'scuttlebutt'],
+  "keywords": ["sssb", "npm", "c31m", "p2p", "package manager', 'scuttlebutt"],
   "contributors": [
     "Jan Bölsche <jan@lagomorph.de> (http://regular.codes)",
     "Stephen Whitmore <sww@eight.net>"
