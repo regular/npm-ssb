@@ -59,6 +59,7 @@ module.exports = function (Driver, done) {
         data = JSON.parse(data)
         publishPackage(data, function (err) {
           if (err) {
+            console.log(err);
             res.statusCode = 500
           } else {
             res.statusCode = 201

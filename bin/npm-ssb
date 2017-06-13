@@ -3,7 +3,17 @@
 process.title = "npm-ssb";
 const registry = require('../registry');
 const backend = require('../backend');
+const ssbClient = require('ssb-client');
 
-registry(backend, (err)=>{
+ssbClient( (err, sbot) => {
     if (err) throw err;
+
+    sbot.whoami( (err, id)=>{
+        console.log(err, id);
+    });
+
+    registry(backend(sbot), (err)=>{
+        if (err) throw err;
+    });
+
 });
