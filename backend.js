@@ -12,18 +12,6 @@ function isPeerPackage(pkg) {
     
 module.exports = (sbot) => {
 
-    // taken from ssb-git-repo/lib/repo.js
-    function addBlobRaw(cb) {
-        // work around sbot.blobs.add not calling back with blob id
-        var done = multicb({ pluck: 1, spread: true });
-        var sink = pull(
-            ssbHash(done()),
-            sbot.blobs.add(done())
-        );
-        done(cb);
-        return sink;
-    }
-
     return ()=>{
         let meta = {};
         let tarballs = [];
@@ -61,7 +49,7 @@ module.exports = (sbot) => {
                     pull(
                         pull.once(buffer),
                         pull.through(console.log),
-                        addBlobRaw( (err, hash) => {
+                        sbot.blobs.add( (err, hash) => {
                             console.log('blob.add', err, hash);
                             cb(err, hash);
                         })
