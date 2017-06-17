@@ -9,7 +9,13 @@ function isPeerPackage(pkg) {
     console.log('isPeerPackage', pkg);
     return false;
 }
-    
+
+function getVersionFromMeta(meta) {
+  // find out what version is currently being published
+  // (this should be more obvious)
+  return meta['dist-tags'].latest;
+}
+
 module.exports = (sbot) => {
 
     return ()=>{
@@ -22,19 +28,35 @@ module.exports = (sbot) => {
         }
 
         function writeMetadata(name, data, cb) {
-            console.log('writeMetadata', name, inspect(data, {depth: 8, colors: true}));
             Object.assign(meta, data);
             cb(null);
         }
 
         function writeTarball(packageName, filename, buffer, cb) {
-            console.log('writeTarball', packageName, filename);
             tarballs.push({buffer, filename});
             cb(null);
         }
 
+        function createBlobs(tarballs, cb) {
+            pull(
+                pull.values(tarballs),
+                pull.asyncMap( ({buffer}, cb) => {
+                    console.log(`Uploading ${buffer.byteLength} bytes ... `);
+                    pull(
+                        pull.once(buffer),
+                        sbot.blobs.add( (err, hash) => {
+                            console.log('blob.add', err, hash);
+                            cb(err, hash);
+                        })
+                    );
+                }),
+                pull.collect(cb)
+            );
+        }
+
         function publishRelease(cb) {
-            console.log(`publishRelease: ${meta.name} ${tarballs.length} tarball(s)`);
+            let version = getVersionFromMeta(meta);
+            console.log(`publishRelease: ${meta.name}@${version}, ${tarballs.length} tarball(s)`);
             console.log('metadata size is', Buffer.from(JSON.stringify(meta)).byteLength);
             let tarballSize = tarballs.reduce( (acc, {buffer, filename})=>{
                 console.log(`  ${filename} ${buffer.byteLength} bytes`);
@@ -42,23 +64,16 @@ module.exports = (sbot) => {
             }, 0); 
             console.log('total tarball size is', tarballSize);
             console.log('creating blobs ...');
-            pull(
-                pull.values(tarballs),
-                pull.asyncMap( ({buffer}, cb) => {
-                    console.log(`Uploading ${buffer.byteLength} bytes ... `);
-                    pull(
-                        pull.once(buffer),
-                        pull.through(console.log),
-                        sbot.blobs.add( (err, hash) => {
-                            console.log('blob.add', err, hash);
-                            cb(err, hash);
-                        })
-                    );
-                }),
-                pull.drain( (hash)=>{
-                    console.log(`done. hash is ${hash}`);
-                }, cb)
-            );
+            createBlobs(tarballs, (err, hashes)=>{
+              if (err) return cb(err);
+              // replace localhost URL with ssb tarball link
+              meta.versions[version].dist.tarball = hashes[0];
+              console.log('posting publish message', inspect(meta, {depth: 8, colors: true}));
+              sbot.publish({
+                type: 'npm-publish',
+                meta
+              }, cb);
+            });
         }
 
         return {
