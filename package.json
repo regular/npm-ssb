@@ -23,7 +23,8 @@
     "npm",
     "c31m",
     "p2p",
-    "package manager', 'scuttlebutt"
+    "package manager", 
+    "scuttlebutt"
   ],
   "contributors": [
     "Jan Bölsche <jan@lagomorph.de> (http://regular.codes)",
