@@ -52,6 +52,7 @@ module.exports = function (Driver, done) {
       console.log('wants to publish', match.params.pkg)
       body(req, function (err, data) {
         if (err) {
+          console.log('500')
           res.statusCode = 500
           res.end()
           return
@@ -59,7 +60,8 @@ module.exports = function (Driver, done) {
         data = JSON.parse(data)
         publishPackage(data, function (err) {
           if (err) {
-            console.log(err);
+            console.log(err.message)
+            console.log(500)
             res.statusCode = 500
           } else {
             res.statusCode = 201
@@ -78,27 +80,17 @@ module.exports = function (Driver, done) {
     var attachments = data._attachments
     delete data._attachments
 
-    var pending = 2
     var pkg = data.name
     var driver = Driver()
-    driver.writeMetadata(pkg, data, function (err) {
-      console.log('wrote meta')
-      if (--pending === 0) done(err)
-    })
-    writeAttachments(driver, pkg, attachments, function (err) {
-      console.log('wrote tarball')
-      if (--pending === 0) driver.publishRelease(done)
-    })
+    driver.writeMetadata(pkg, data)
+    writeAttachments(driver, pkg, attachments)
+    driver.publishRelease(done)
   }
 
-  function writeAttachments (driver, pkg, attachments, done) {
-    var pending = Object.keys(attachments).length
-
+  function writeAttachments (driver, pkg, attachments) {
     Object.keys(attachments).forEach(function (filename) {
       var data = new Buffer(attachments[filename].data, 'base64')
-      driver.writeTarball(pkg, filename, data, function (err) {
-        if (--pending === 0) done(err)
-      })
+      driver.writeTarball(pkg, filename, data)
     })
   }
 
