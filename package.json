@@ -7,17 +7,18 @@
     "npm-ssb": "bin/npm-ssb"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tape test/*-test.js"
   },
   "dependencies": {
     "body": "^5.1.0",
-    "flumeview-query": "^3.0.3",
+    "emojis-with-ssb-hashes": "1.0.1",
     "multicb": "^1.2.1",
     "pull-hash": "^1.0.0",
     "pull-stream": "^3.6.0",
     "request": "^2.79.0",
     "routes": "^2.1.0",
-    "ssb-client": "^4.5.0"
+    "ssb-client": "^4.5.0",
+    "ssb-mentions": "^0.4.0"
   },
   "keywords": [
     "sssb",
@@ -32,7 +33,14 @@
     "Stephen Whitmore <sww@eight.net>"
   ],
   "license": "MIT",
-  "devDependencies": {},
+  "devDependencies": {
+    "flumecodec": "0.0.0",
+    "flumedb": "^0.2.3",
+    "flumelog-offset": "^3.0.2",
+    "flumeview-query": "^3.0.3",
+    "tape": "^4.6.3",
+    "temp": "^0.8.3"
+  },
   "repository": {
     "type": "git",
     "url": "ssb://%imnigwPJY1MbBuvaSGj2CZXjsOqq3LCBCCkxLusLNHQ=.sha256"
