@@ -1,9 +1,12 @@
 var test = require('tape')
-var ssb = require('./ssb-mock')
+var Ssb = require('./ssb-mock')
 var pull = require('pull-stream')
-var messages = require('../lib/messages')
+var Messages = require('../lib/messages')
+var Versions = require('../lib/versions')
 
 test('Should return publish messages by author and module name', (t)=>{
+  var ssb = Ssb()
+  var {published} = Messages(ssb)
   ssb.append([{
     key: '%1',
     timestamp: 1498130523459,
@@ -46,7 +49,7 @@ test('Should return publish messages by author and module name', (t)=>{
   }], function (err, seq) {
     console.log(err, seq)
     pull(
-      messages(ssb, 'me', 'mymodule'),
+      published('me', 'mymodule'),
       pull.collect( (err, msgs)=>{
         t.notOk(err)
         t.equal(msgs.length, 1)
@@ -58,4 +61,90 @@ test('Should return publish messages by author and module name', (t)=>{
       })
     )
   })
+})
+
+function makeChain(n, versions) {
+  let i = 0
+  return versions.map( (v)=>{
+    return {
+      key: '%' + n,
+      timestamp: 1000*n,
+      value: {
+        sequence: n++,
+        author: 'me',
+        content: {
+          previousPublish: i++ ? '%' + (n-2) : null,
+          type: 'npm-publish',
+          meta: {
+            versions: v.reduce( (acc,x)=>{acc[x]=true; return acc}, {}),
+            name: "mymodule"
+          }
+        }
+      }
+    }
+  })
+}
+
+test('Should return all update-chains', (t)=>{
+  var ssb = Ssb()
+  var {chains} = Messages(ssb)
+
+  ssb.append(
+    makeChain(1, [['0.0.1']]).concat(
+      makeChain(2, [
+        ['1.0.0'],
+        ['2.0.0', '3.0.0'],
+        ['4.0.0']
+      ])
+    ).concat(
+      makeChain(5, [
+        ['5.0.1'],
+        ['6.2.0', '7.2.4'],
+      ])
+    ),
+    function (err, seq) {
+      t.notOk(err)
+      pull(
+        chains('me', 'mymodule'),
+        pull.collect( (err, chains)=>{
+          t.equal(chains.length, 3)
+          t.equal(chains[0].length, 1)
+          t.equal(chains[1].length, 3)
+          t.equal(chains[2].length, 2)
+          t.end()
+        })
+      )
+    }
+  )
+})
+
+test('Should return the current version and msg key', (t)=>{
+  var ssb = Ssb()
+  var {current} = Versions(ssb)
+
+  ssb.append(
+    makeChain(1, [
+      ['0.0.1'],
+      ['2.1.0', '3.1.0']
+    ]).concat(
+      makeChain(3, [
+        ['1.0.0'],
+        ['2.0.0', '3.0.0'],
+        ['4.0.0']
+      ])
+    ).concat(
+      makeChain(6, [
+        ['5.0.1'],
+        ['6.2.0', '7.2.4'],
+      ])
+    ),
+    function (err, seq) {
+      t.notOk(err)
+      current('me', 'mymodule', (err, curr)=>{
+        t.equal(curr.version, '3.1.0')
+        t.equal(curr.key, '%2')
+        t.end()
+      })
+    }
+  )
 })
