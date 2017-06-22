@@ -11,5 +11,5 @@ var indexes = []
 
 //var db = Flume(MemLog())
 
-module.exports = Flume(OffsetLog(tempDir() + "/flume-test.db", codec.json))
+module.exports = ()=> Flume(OffsetLog(tempDir() + "/flume-test.db", codec.json))
   .use('query', FlumeQuery(indexes))
