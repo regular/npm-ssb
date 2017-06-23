@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+const {inspect} = require('util')
+const pull = require('pull-stream')
+const registry = require('../registry');
+const backend = require('../backend');
+const Ssb = require('../test/ssb-mock')
+
+process.title = "npm-ssb";
+
+var ssb = Ssb()
+ssb.whoami = (cb)=>cb(null, {id:'me'})
+ssb.blobs= {
+  add: (cb)=> pull.collect( (err, buffers)=>{
+    cb(null, `&my-blob-hash`)
+  })
+}
+ssb.publish = (msg, cb) => {
+  console.log(inspect(msg, {depth: 8}))
+  cb(null)
+}
+
+registry(backend(ssb), (err)=>{
+    if (err) throw err;
+});
+
