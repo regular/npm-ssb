@@ -1,12 +1,25 @@
 {
   "name": "hello-world",
-  "version": "1.0.2",
-  "description": "A minimal package - now with README!",
+  "version": "1.0.3",
+  "description": "A minimal :seedling: - now with README!",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "@nti4TWBH/WNZnfwEoSleF3bgagd63Z5yeEnmFIyq0KA=.ed25519",
+  "author": {
+    "name": "regular",
+    "url": "@nti4TWBH/WNZnfwEoSleF3bgagd63Z5yeEnmFIyq0KA=.ed25519"
+  },
+  "contributors": [
+    {
+      "name": "noffle",
+      "url": "@C3iYh/12sO1uvKq1KcZXLFxSySzxOkHxXN8rtNB5MGA=.ed25519"
+    },
+    {
+      "name": "Dominic",
+      "url": "@EMovhfIrFk4NihAKnRNhrfRaqIhBv1Wj8pTxJNgvCCY=.ed25519"
+    }
+  ],
   "license": "MIT"
 }
