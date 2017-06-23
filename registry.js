@@ -5,7 +5,7 @@ var url = require('url')
 var body = require('body')
 var request = require('request')
 
-module.exports = function (Driver, done) {
+module.exports = function (driver, done) {
   var router = routes()
   router.addRoute('/:pkg', onPackage)
   router.addRoute('/-/user/org.couchdb.user\::user', onAddUser)
@@ -31,10 +31,10 @@ module.exports = function (Driver, done) {
   function onPackage (req, res, match) {
     if (req.method === 'GET') {
       var pkg = match.params.pkg
-      if (Driver().isPeerPackage(pkg)) {
+      if (driver.isPeerPackage(pkg)) {
         console.log(pkg + ' is a peer network package')
         // use peer network
-        Driver().fetchMetadata(pkg, function (err, meta) {
+        driver.fetchMetadata(pkg, function (err, meta) {
           if (err) {
             res.statusCode = 404
           } else {
@@ -80,23 +80,17 @@ module.exports = function (Driver, done) {
     var attachments = data._attachments
     delete data._attachments
 
-    var pkg = data.name
-    var driver = Driver()
-    driver.writeMetadata(pkg, data)
-    writeAttachments(driver, pkg, attachments)
-    driver.publishRelease(done)
+    var filename = Object.keys(attachments)[0]
+    var tarball = new Buffer(attachments[filename].data, 'base64')
+    driver.publishRelease(data, tarball, done)
   }
 
   function writeAttachments (driver, pkg, attachments) {
-    Object.keys(attachments).forEach(function (filename) {
-      var data = new Buffer(attachments[filename].data, 'base64')
-      driver.writeTarball(pkg, filename, data)
-    })
   }
 
   function onAddUser (req, res, match) {
     body(req, function (err, data) {
-      Driver().addUser({
+      driver.addUser({
         name: data.name,
         email: data.email
       }, function (err) {
@@ -113,7 +107,7 @@ module.exports = function (Driver, done) {
   function onTarball (req, res, match) {
     var tarball = match.params.tarball
     console.log('wants tarball:', tarball)
-    Driver().fetchTarball(tarball, function (err, stream) {
+    driver.fetchTarball(tarball, function (err, stream) {
       if (err) {
         res.statusCode = 404
         res.end()
