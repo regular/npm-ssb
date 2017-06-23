@@ -33,7 +33,7 @@ function meta(version) {
       [version]: {
         "author": {
           name: "that guy",
-          ssb: "@nti4TWBH/WNZnfwEoSleF3bgagd63Z5yeEnmFIyq0KA=.ed25519"
+          email: "@nti4TWBH/WNZnfwEoSleF3bgagd63Z5yeEnmFIyq0KA=.ed25519"
         },
         "dist": {
           "tarball": "tarball url"
@@ -88,7 +88,9 @@ test('Should upload blob and post publish message', (t)=>{
       tarball: '&my-blob-hash'
     })
     t.deepEqual(msg.mentions, [
-      { link: '@nti4TWBH/WNZnfwEoSleF3bgagd63Z5yeEnmFIyq0KA=.ed25519' }
+      {
+        name: "that guy",
+        link: '@nti4TWBH/WNZnfwEoSleF3bgagd63Z5yeEnmFIyq0KA=.ed25519' }
     ])
 
     cb(null)
@@ -105,3 +107,4 @@ test('Should upload blob and post publish message', (t)=>{
     }
   )
 })
+
