@@ -2,7 +2,6 @@ var test = require('tape')
 var Ssb = require('./ssb-mock')
 var pull = require('pull-stream')
 var Messages = require('../lib/messages')
-var Versions = require('../lib/versions')
 
 test('Should return publish messages by author and module name', (t)=>{
   var ssb = Ssb()
@@ -118,33 +117,3 @@ test('Should return all update-chains', (t)=>{
   )
 })
 
-test('Should return the current version and msg key', (t)=>{
-  var ssb = Ssb()
-  var {current} = Versions(ssb)
-
-  ssb.append(
-    makeChain(1, [
-      ['0.0.1'],
-      ['2.1.0', '3.1.0']
-    ]).concat(
-      makeChain(3, [
-        ['1.0.0'],
-        ['2.0.0', '3.0.0'],
-        ['4.0.0']
-      ])
-    ).concat(
-      makeChain(6, [
-        ['5.0.1'],
-        ['6.2.0', '7.2.4'],
-      ])
-    ),
-    function (err, seq) {
-      t.notOk(err)
-      current('me', 'mymodule', (err, curr)=>{
-        t.equal(curr.version, '3.1.0')
-        t.equal(curr.key, '%2')
-        t.end()
-      })
-    }
-  )
-})
